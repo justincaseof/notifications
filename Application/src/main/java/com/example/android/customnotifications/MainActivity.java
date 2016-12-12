@@ -19,17 +19,18 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 public class MainActivity extends Activity {
+    private static final String LOGTAG = "MainActivity";
+
     /**
      * This sample demonstrates notifications with custom content views.
      *
@@ -68,27 +69,40 @@ public class MainActivity extends Activity {
         builder.setAutoCancel(false);
 
         // BEGIN_INCLUDE(actions)
-        Intent notifIntent = new Intent(MainActivity.this, Main2Activity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.addAction(
-            new NotificationCompat.Action(
-                    R.drawable.ic_stat_plus, "+ 30", pendingIntent));
+//        Intent notifIntent = new Intent(MainActivity.this, Main2Activity.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
+//        builder.addAction(
+//            new NotificationCompat.Action(
+//                    R.drawable.ic_stat_plus, "+ 30", pendingIntent));
         // END_INCLUDE(actions)
 
         // BEGIN_INCLUDE(content)
         // 1) small notification
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
-        final String time = DateFormat.getTimeInstance().format(new Date()).toString();
-        final String text = getResources().getString(R.string.collapsed, time);
-        contentView.setTextViewText(R.id.textView, text);
+//        final String time = DateFormat.getTimeInstance().format(new Date()).toString();
+//        final String text = getResources().getString(R.string.collapsed, time);
+//        contentView.setTextViewText(R.id.textView, text);
+//        builder.setContent(contentView);
         // 2) big notification
 //        RemoteViews bigContentView = new RemoteViews(getPackageName(), R.layout.notification_expanded);
-//        builder.setContent(contentView);
 //        builder.setCustomBigContentView(bigContentView);
         // BEGIN_INCLUDE(content)
 
+        builder.setContent(contentView);
+        contentView.setTextViewText(R.id.textView, "Heading");
+
         // Build the notification
         Notification notification = builder.build();
+
+        // BEGIN_INCLUDE(on-notification button stuff)
+        addButtonListener(contentView, R.id.button_set10min);
+        addButtonListener(contentView, R.id.button_set90min);
+        addButtonListener(contentView, R.id.button_set30min);
+        addButtonListener(contentView, R.id.button_set60min);
+        // END_INCLUDE(on-notification button stuff)
+
+        // BUG: notification won't show anything on it without the below line in some android versions
+        //notification.contentView = contentView;
         // END_INCLUDE(buildNotification)
 
         // START_INCLUDE(notify)
@@ -97,6 +111,16 @@ public class MainActivity extends Activity {
         nm.notify(0, notification);
         // END_INCLUDE(notify)
     }
+
+    public static final String intentSourceComponentIdKey = "intentSourceComponentId";
+    private void addButtonListener(RemoteViews contentView, int componentId) {
+        Intent switchIntent = new Intent(this, switchButtonListener.class);
+        switchIntent.putExtra(intentSourceComponentIdKey, ""+componentId);
+
+        PendingIntent pendingSwitchIntent = PendingIntent.getBroadcast(this, componentId, switchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        contentView.setOnClickPendingIntent(componentId, pendingSwitchIntent);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,4 +138,18 @@ public class MainActivity extends Activity {
     public void showNotificationClicked(View v) {
         createNotification();
     }
+
+
+
+    public static class switchButtonListener extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String componentId = intent.getStringExtra(intentSourceComponentIdKey);
+            Log.d("Here", "I am here. Component was: " + componentId);
+
+        }
+
+
+    }
+
 }

@@ -24,18 +24,45 @@
     android:gravity="center_horizontal">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/NotificationContent"
-        android:id="@+id/textView"
-        android:gravity="center" />
-
-    <ImageView
+        android:text="lala - 123"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:src="@drawable/robot"
-        android:contentDescription="@string/collapsed_image" />
+        android:id="@+id/textView"
+        android:layout_weight="1" />
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <Button
+            android:text="10min"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_set10min"
+            android:layout_weight="1" />
+
+        <Button
+            android:text="30min"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_set30min"
+            android:layout_weight="1" />
+
+        <Button
+            android:text="60min"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_set60min"
+            android:layout_weight="1" />
+
+        <Button
+            android:text="90min"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_set90min"
+            android:layout_weight="1" />
+    </LinearLayout>
 
 </LinearLayout>
