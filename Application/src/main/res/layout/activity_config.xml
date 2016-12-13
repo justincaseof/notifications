@@ -39,5 +39,5 @@
         android:layout_marginStart="50dp"
         android:layout_marginBottom="444dp"
         android:id="@+id/button_abort"
-        android:onClick="save" />
+        android:onClick="abort" />
 </RelativeLayout>

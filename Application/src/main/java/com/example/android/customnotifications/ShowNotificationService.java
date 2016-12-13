@@ -15,20 +15,17 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import static com.example.android.customnotifications.DownloadService.ARGUMENT_MINUTES;
+
 public class ShowNotificationService extends Service {
 
-    public static final String ARGUMENT_1_KEY = "ARGUMENT_1_KEY";
-    public static final String ARGUMENT_2_KEY = "ARGUMENT_2_KEY";
-
-
+    public static final String ARGUMENT_RELAIS_STATE = "ARGUMENT_RELAIS_STATE";
+    public static final String ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER = "ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER";
 
     private static final String LOGTAG = ShowNotificationService.class.getSimpleName();
 
     private NotificationManager mNM;
 
-    // Unique Identification Number for the Notification.
-    // We use it on Notification start, and to cancel it.
-    public static String NOTIFICATION = "MY_SERVICE_NOTIFICATION";
     public static int NOTIFICATION_ID = 1;
 
     /**
@@ -49,10 +46,12 @@ public class ShowNotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(LOGTAG, "ShowNotificationService.onStartCommand --> id: " + startId + ", intent: " + intent);
+        Log.d(LOGTAG, "ShowNotificationService.onStartCommand --> id: " + startId + ", intent: " + intent);
 
-        createNotification();
+        String relais_state = intent.getStringExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE);
+        int seconds_until_switchoff_counter = intent.getIntExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, 0);
 
+        createNotification(relais_state, seconds_until_switchoff_counter);
         return START_NOT_STICKY;
     }
 
@@ -76,8 +75,8 @@ public class ShowNotificationService extends Service {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void createNotification() {
-        Log.d(LOGTAG, "createNotification");
+    private void createNotification(String relais_state, int seconds_until_switchoff_counter) {
+        Log.d(LOGTAG, "createNotification() -- relais_state: '" + relais_state + "', seconds_until_switchoff_counter: '" + seconds_until_switchoff_counter + "'");
 
         // BEGIN_INCLUDE(notificationCompat)
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -126,7 +125,7 @@ public class ShowNotificationService extends Service {
 
         builder.setContent(contentView);
         contentView.setTextViewText(R.id.textView_ip, Configuration.target);
-        contentView.setTextViewText(R.id.textView_seconds, "time: " + System.currentTimeMillis());
+        contentView.setTextViewText(R.id.textView_relaisState, "relais: " + relais_state + ", remaining: " + seconds_until_switchoff_counter);
 
         // Build the notification
         Notification notification = builder.build();
@@ -183,23 +182,24 @@ public class ShowNotificationService extends Service {
                 switch (id) {
                     case R.id.button_set10min:
                         Log.d(LOGTAG, "10min");
-                        setTimeIntent = new Intent(context, DownloadService.class);
-                        setTimeIntent.putExtra(ShowNotificationService.ARGUMENT_1_KEY, "arg-1");
-                        setTimeIntent.putExtra(ShowNotificationService.ARGUMENT_2_KEY, "arg-2");
-                        context.startService(intent);
+                        setTimeout(context, 10);
                         break;
                     case R.id.button_set30min:
                         Log.d(LOGTAG, "30min");
+                        setTimeout(context, 30);
                         break;
                     case R.id.button_set60min:
                         Log.d(LOGTAG, "60min");
+                        setTimeout(context, 60);
                         break;
                     case R.id.button_set90min:
                         Log.d(LOGTAG, "90min");
+                        setTimeout(context, 90);
                         break;
                     case R.id.button_on:
                         Log.d(LOGTAG, "on");
-                        break;case R.id.button_off:
+                        break;
+                    case R.id.button_off:
                         Log.d(LOGTAG, "off");
                         break;
                     case R.id.button_configure:
@@ -209,24 +209,22 @@ public class ShowNotificationService extends Service {
                         Log.d(LOGTAG, "Sender not registerd to set time.");
                         break;
                 }
-                updateNotification(context);
             } catch (Exception e) {
                 Log.e(LOGTAG, "Illegal property '"+ INTENT_SOURCE_RESOURCE_ID +"': " + componentId);
             }
-        }
-
-        private void updateNotification(Context context) {
-            Intent intent = new Intent(context, ShowNotificationService.class);
-            intent.putExtra(ShowNotificationService.ARGUMENT_1_KEY, "argument-1");
-            intent.putExtra(ShowNotificationService.ARGUMENT_2_KEY, "argument-2");
-            Log.d(LOGTAG, "updateNotification() -- starting ShowNotificationService...");
-            context.startService(intent);
         }
 
         private void showConfig(Context context) {
             Intent config = new Intent(context, ConfigActivity.class);
             Log.d(LOGTAG, "showConfig() -- starting ConfigActivity...");
             context.startActivity(config);
+        }
+
+        private void setTimeout(Context context, int minutes) {
+            Intent intent = new Intent(context, DownloadService.class);
+            intent.putExtra(ARGUMENT_MINUTES, minutes);
+            Log.d(LOGTAG, "startDownload() -- starting DownloadService...");
+            context.startService(intent);
         }
 
         private void vibrate(Context context) {

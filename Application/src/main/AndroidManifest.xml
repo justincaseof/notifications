@@ -39,6 +39,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ConfigActivity">
+
+        </activity>
+
         <service
             android:name=".ShowNotificationService"
             android:enabled="true"
@@ -46,7 +50,12 @@
             />
         </service>
 
-        <activity android:name=".ConfigActivity"></activity>
+        <service
+            android:name=".DownloadService"
+            android:enabled="true"
+            android:exported="true">
+            />
+        </service>
 
     </application>
 

@@ -54,8 +54,8 @@ public class MainActivity extends Activity {
 
     private void createNotification() {
         Intent intent = new Intent(this, ShowNotificationService.class);
-        intent.putExtra(ShowNotificationService.ARGUMENT_1_KEY, "argument-1");
-        intent.putExtra(ShowNotificationService.ARGUMENT_2_KEY, "argument-2");
+        intent.putExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE, "0");
+        intent.putExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, 0);
         Log.d(LOGTAG, "starting ShowNotificationService...");
         startService(intent);
     }

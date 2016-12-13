@@ -65,9 +65,18 @@
                     android:text="target"
                     android:textColor="@android:color/black"
                     android:layout_width="match_parent"
-                    android:id="@+id/textView_seconds"
+                    android:id="@+id/textView_relaisState"
                     android:layout_weight="1"
                     android:layout_height="10dp" />
+
+                <!--<TextView-->
+                    <!--android:textSize="8sp"-->
+                    <!--android:text="target"-->
+                    <!--android:textColor="@android:color/black"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:id="@+id/textView_secondsRemaining"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:layout_height="10dp" />-->
             </LinearLayout>
 
             <ImageButton
