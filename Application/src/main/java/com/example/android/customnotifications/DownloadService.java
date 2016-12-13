@@ -64,9 +64,11 @@ public class DownloadService extends IntentService {
     public String getStatus() {
         try {
             long start = System.currentTimeMillis();
-            URLConnection con = new URL(Configuration.target).openConnection();
-            InputStream is = con.getInputStream();
+            URLConnection urlConnection = new URL(Configuration.target).openConnection();
+            urlConnection.setConnectTimeout(2000);
+            urlConnection.setReadTimeout(2000);
 
+            InputStream is = urlConnection.getInputStream();
             String response = readStream(is);
             Log.d(LOGTAG, "#############################");
             Log.d(LOGTAG, "# (took: " + (System.currentTimeMillis()-start) + "ms)");
@@ -98,6 +100,8 @@ public class DownloadService extends IntentService {
             URL url = new URL(Configuration.target);
             HttpURLConnection urlConnection = null;
             urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setConnectTimeout(2000);
+            urlConnection.setReadTimeout(2000);
             try {
                 urlConnection.setDoOutput(true);
                 urlConnection.setChunkedStreamingMode(0);
