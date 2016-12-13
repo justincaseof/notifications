@@ -64,7 +64,7 @@ public class DownloadService extends IntentService {
     public String getStatus() {
         try {
             long start = System.currentTimeMillis();
-            URLConnection urlConnection = new URL(Configuration.target).openConnection();
+            URLConnection urlConnection = new URL(Configuration.TARGET_URL).openConnection();
             urlConnection.setConnectTimeout(2000);
             urlConnection.setReadTimeout(2000);
 
@@ -97,7 +97,7 @@ public class DownloadService extends IntentService {
     private void setStatus(RelaisState relais_state, int remainingMinutes) {
         try {
             long start = System.currentTimeMillis();
-            URL url = new URL(Configuration.target);
+            URL url = new URL(Configuration.TARGET_URL);
             HttpURLConnection urlConnection = null;
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setConnectTimeout(2000);

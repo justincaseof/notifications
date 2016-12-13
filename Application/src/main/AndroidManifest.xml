@@ -39,7 +39,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ConfigActivity">
+        <activity
+            android:name=".ConfigActivity"
+            android:label="ConfigActivity">
 
         </activity>
 

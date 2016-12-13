@@ -15,9 +15,6 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import static com.example.android.customnotifications.DownloadService.ARGUMENT_MINUTES;
-import static com.example.android.customnotifications.DownloadService.ARGUMENT_UPDATE_ONLY;
-
 public class ShowNotificationService extends Service {
 
     public static final String ARGUMENT_RELAIS_STATE = "ARGUMENT_RELAIS_STATE";
@@ -97,6 +94,7 @@ public class ShowNotificationService extends Service {
         // BEGIN_INCLUDE(buildNotification)
         // Cancel the notification when clicked
         builder.setAutoCancel(false);
+        builder.setOngoing(true);
 
         // BEGIN_INCLUDE(actions)
 //        Intent notifIntent = new Intent(MainActivity.this, Main2Activity.class);
@@ -110,7 +108,7 @@ public class ShowNotificationService extends Service {
         // 1) small notification
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
         builder.setContent(contentView);
-        contentView.setTextViewText(R.id.textView_ip, Configuration.target);
+        contentView.setTextViewText(R.id.textView_ip, Configuration.TARGET_URL);
         contentView.setTextViewText(R.id.textView_relaisState, "relais: " + relais_state + ", remaining: " + seconds_until_switchoff_counter);
 
         // Build the notification
@@ -151,7 +149,7 @@ public class ShowNotificationService extends Service {
         contentView.setOnClickPendingIntent(componentId, pendingNotificationButtonListener);
     }
     private void addConfigButtonListener(RemoteViews contentView, int buttonId) {
-        Intent settings = new Intent(getApplicationContext(), notificationButtonListener.class);
+        Intent settings = new Intent(getApplicationContext(), ConfigActivity.class);
         PendingIntent pendingSwitchIntent = PendingIntent.getActivity(this, buttonId, settings, 0);
         contentView.setOnClickPendingIntent(buttonId, pendingSwitchIntent);
     }
