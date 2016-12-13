@@ -89,7 +89,8 @@
                 android:text="10min"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:id="@+id/button_set10min" />
+                android:id="@+id/button_set10min"
+                android:layout_weight="1" />
 
             <Button
                 android:textSize="8sp"
@@ -114,8 +115,20 @@
                 android:layout_height="30dp"
                 android:id="@+id/button_set90min"
                 android:layout_weight="1" />
-
-
+            <Button
+                android:textSize="8sp"
+                android:text="on"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:id="@+id/button_on"
+                android:layout_weight="1" />
+            <Button
+                android:textSize="8sp"
+                android:text="off"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:id="@+id/button_off"
+                android:layout_weight="1" />
 
         </LinearLayout>
 

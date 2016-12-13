@@ -98,9 +98,11 @@ public class MainActivity extends Activity {
 
         // BEGIN_INCLUDE(on-notification button stuff)
         addButtonListener(contentView, R.id.button_set10min);
-        addButtonListener(contentView, R.id.button_set90min);
         addButtonListener(contentView, R.id.button_set30min);
         addButtonListener(contentView, R.id.button_set60min);
+        addButtonListener(contentView, R.id.button_set90min);
+        addButtonListener(contentView, R.id.button_on);
+        addButtonListener(contentView, R.id.button_off);
         addConfigButtonListener(contentView, R.id.button_configure);
         // END_INCLUDE(on-notification button stuff)
 
@@ -169,6 +171,11 @@ public class MainActivity extends Activity {
                         break;
                     case R.id.button_set90min:
                         Log.d(LOGTAG, "90min");
+                        break;
+                    case R.id.button_on:
+                        Log.d(LOGTAG, "on");
+                    break;case R.id.button_off:
+                        Log.d(LOGTAG, "off");
                         break;
                     default:
                         Log.d(LOGTAG, "Sender not registerd to set time.");
