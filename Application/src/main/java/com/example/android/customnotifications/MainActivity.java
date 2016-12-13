@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
@@ -89,7 +90,8 @@ public class MainActivity extends Activity {
         // BEGIN_INCLUDE(content)
 
         builder.setContent(contentView);
-        contentView.setTextViewText(R.id.textView, Configuration.target);
+        contentView.setTextViewText(R.id.textView_ip, Configuration.target);
+        contentView.setTextViewText(R.id.textView_seconds, "123");
 
         // Build the notification
         Notification notification = builder.build();
@@ -99,6 +101,7 @@ public class MainActivity extends Activity {
         addButtonListener(contentView, R.id.button_set90min);
         addButtonListener(contentView, R.id.button_set30min);
         addButtonListener(contentView, R.id.button_set60min);
+        addConfigButtonListener(contentView, R.id.button_configure);
         // END_INCLUDE(on-notification button stuff)
 
         // BUG: notification won't show anything on it without the below line in some android versions
@@ -119,6 +122,11 @@ public class MainActivity extends Activity {
 
         PendingIntent pendingSwitchIntent = PendingIntent.getBroadcast(this, componentId, switchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         contentView.setOnClickPendingIntent(componentId, pendingSwitchIntent);
+    }
+    private void addConfigButtonListener(RemoteViews contentView, int buttonId) {
+        Intent settings = new Intent(getApplicationContext(), SettingsActivity.class);
+        PendingIntent pendingSwitchIntent = PendingIntent.getActivity(this, buttonId, settings, 0);
+        contentView.setOnClickPendingIntent(buttonId, pendingSwitchIntent);
     }
 
 
@@ -144,6 +152,8 @@ public class MainActivity extends Activity {
     public static class switchButtonListener extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            vibrate(context);
+
             String componentId = intent.getStringExtra(INTENT_SOURCE_RESOURCE_ID);
             try {
                 int id = Integer.valueOf(componentId);
@@ -167,6 +177,11 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 Log.e(LOGTAG, "Illegal property '"+ INTENT_SOURCE_RESOURCE_ID +"': " + componentId);
             }
+        }
+
+        private void vibrate(Context context) {
+            Vibrator vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
+            vibrator.vibrate(100);
         }
     }
 
