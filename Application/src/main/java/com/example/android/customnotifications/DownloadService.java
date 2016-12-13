@@ -1,6 +1,5 @@
 package com.example.android.customnotifications;
 
-import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
@@ -20,6 +19,8 @@ public class DownloadService extends IntentService {
 
     public static final String ARGUMENT_UPDATE_ONLY = "ARGUMENT_UPDATE_ONLY";
     public static final String ARGUMENT_MINUTES = "ARGUMENT_MINUTES";
+    public static final String ARGUMENT_SWITCH_ON = "ARGUMENT_SWITCH_ON";
+    public static final String ARGUMENT_SWITCH_OFF = "ARGUMENT_SWITCH_OFF";
     public static final String LOGTAG = "\"DownloadService\"";
 
     public DownloadService() {
@@ -30,13 +31,22 @@ public class DownloadService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         boolean updateOnly = intent.getBooleanExtra(ARGUMENT_UPDATE_ONLY, false);
+        boolean switchOn = intent.getBooleanExtra(ARGUMENT_SWITCH_ON, false);
+        boolean switchOff = intent.getBooleanExtra(ARGUMENT_SWITCH_OFF, false);
+
         int minutes = intent.getIntExtra(ARGUMENT_MINUTES, -1);
         if (!updateOnly && minutes > -1) {
             try {
-                setStatus(minutes);
+                setStatus(RelaisState.TIMER, minutes);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        if(switchOn) {
+            setStatus(RelaisState.ON, 0);
+        }
+        if(switchOff) {
+            setStatus(RelaisState.OFF, 0);
         }
         updateNotification(getStatus(), 1611);
 
@@ -82,36 +92,44 @@ public class DownloadService extends IntentService {
         return response;
     }
 
-    private void setStatus(int remainingMinutes) throws Exception {
-        long start = System.currentTimeMillis();
-        URL url = new URL(Configuration.target);
-        HttpURLConnection urlConnection = null;
-        urlConnection = (HttpURLConnection) url.openConnection();
+    private void setStatus(RelaisState relais_state, int remainingMinutes) {
         try {
-            urlConnection.setDoOutput(true);
-            urlConnection.setChunkedStreamingMode(0);
+            long start = System.currentTimeMillis();
+            URL url = new URL(Configuration.target);
+            HttpURLConnection urlConnection = null;
+            urlConnection = (HttpURLConnection) url.openConnection();
+            try {
+                urlConnection.setDoOutput(true);
+                urlConnection.setChunkedStreamingMode(0);
 
-            OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-            //FIXME: DEBUG: writeStatusContent(2, remainingMinutes*60, out);
-            writeStatusContent(2, remainingMinutes, out);
+                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+                writeStatusContent(relais_state.ordinal(), remainingMinutes * 60, out);
 
-            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            String response = readStream(in);
-            Log.d(LOGTAG, "#############################");
-            Log.d(LOGTAG, "# (took: " + (System.currentTimeMillis()-start) + "ms)");
-            Log.d(LOGTAG, "# response: " + response);
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                String response = readStream(in);
+                Log.d(LOGTAG, "#############################");
+                Log.d(LOGTAG, "# (took: " + (System.currentTimeMillis() - start) + "ms)");
+                Log.d(LOGTAG, "# response: " + response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                urlConnection.disconnect();
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            urlConnection.disconnect();
+            Log.e(LOGTAG, "Error setting status: " + e.getMessage());
         }
-
     }
 
     private void writeStatusContent(int relais_state, int seconds_until_switchoff_counter, OutputStream out) throws IOException {
         // {"relais_state":0,"seconds_until_switchoff_counter":123}
         out.write(("{\"relais_state\":" + relais_state + ",\"seconds_until_switchoff_counter\":" + seconds_until_switchoff_counter + "}").getBytes());
         out.flush();
+    }
+
+    private enum RelaisState {
+        OFF,
+        ON,
+        TIMER
     }
 
 }

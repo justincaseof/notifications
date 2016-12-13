@@ -185,9 +185,11 @@ public class ShowNotificationService extends Service {
                         break;
                     case R.id.button_on:
                         Log.d(LOGTAG, "on");
+                        switchRelais(context, true);
                         break;
                     case R.id.button_off:
                         Log.d(LOGTAG, "off");
+                        switchRelais(context, false);
                         break;
                     case R.id.button_configure:
                         showConfig(context);
@@ -215,6 +217,13 @@ public class ShowNotificationService extends Service {
             Intent config = new Intent(context, ConfigActivity.class);
             Log.d(LOGTAG, "showConfig() -- starting ConfigActivity...");
             context.startActivity(config);
+        }
+
+        private void switchRelais(Context context, boolean on) {
+            Intent intent = new Intent(context, DownloadService.class);
+            intent.putExtra( on ? DownloadService.ARGUMENT_SWITCH_ON : DownloadService.ARGUMENT_SWITCH_OFF, true);
+            Log.d(LOGTAG, "startDownload() -- starting DownloadService...");
+            context.startService(intent);
         }
 
         private void setTimeout(Context context, int minutes) {
