@@ -52,6 +52,7 @@ public class ShowNotificationService extends Service {
         int seconds_until_switchoff_counter = intent.getIntExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, 0);
 
         createNotification(relais_state, seconds_until_switchoff_counter);
+        vibrate(this);
         return START_NOT_STICKY;
     }
 
@@ -227,10 +228,11 @@ public class ShowNotificationService extends Service {
             context.startService(intent);
         }
 
-        private void vibrate(Context context) {
-            Vibrator vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
-            vibrator.vibrate(100);
-        }
+    }
+
+    private static void vibrate(Context context) {
+        Vibrator vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
+        vibrator.vibrate(100);
     }
 
 
