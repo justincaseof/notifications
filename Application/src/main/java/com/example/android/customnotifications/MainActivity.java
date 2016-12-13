@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
         // BEGIN_INCLUDE(content)
 
         builder.setContent(contentView);
-        contentView.setTextViewText(R.id.textView, "Heading");
+        contentView.setTextViewText(R.id.textView, Configuration.target);
 
         // Build the notification
         Notification notification = builder.build();
@@ -112,10 +112,10 @@ public class MainActivity extends Activity {
         // END_INCLUDE(notify)
     }
 
-    public static final String intentSourceComponentIdKey = "intentSourceComponentId";
+    public static final String INTENT_SOURCE_RESOURCE_ID = "intentSourceResourceId";
     private void addButtonListener(RemoteViews contentView, int componentId) {
         Intent switchIntent = new Intent(this, switchButtonListener.class);
-        switchIntent.putExtra(intentSourceComponentIdKey, ""+componentId);
+        switchIntent.putExtra(INTENT_SOURCE_RESOURCE_ID, ""+componentId);
 
         PendingIntent pendingSwitchIntent = PendingIntent.getBroadcast(this, componentId, switchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         contentView.setOnClickPendingIntent(componentId, pendingSwitchIntent);
@@ -144,12 +144,30 @@ public class MainActivity extends Activity {
     public static class switchButtonListener extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String componentId = intent.getStringExtra(intentSourceComponentIdKey);
-            Log.d("Here", "I am here. Component was: " + componentId);
-
+            String componentId = intent.getStringExtra(INTENT_SOURCE_RESOURCE_ID);
+            try {
+                int id = Integer.valueOf(componentId);
+                switch (id) {
+                    case R.id.button_set10min:
+                        Log.d(LOGTAG, "10min");
+                        break;
+                    case R.id.button_set30min:
+                        Log.d(LOGTAG, "30min");
+                        break;
+                    case R.id.button_set60min:
+                        Log.d(LOGTAG, "60min");
+                        break;
+                    case R.id.button_set90min:
+                        Log.d(LOGTAG, "90min");
+                        break;
+                    default:
+                        Log.d(LOGTAG, "Sender not registerd to set time.");
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(LOGTAG, "Illegal property '"+ INTENT_SOURCE_RESOURCE_ID +"': " + componentId);
+            }
         }
-
-
     }
 
 }
