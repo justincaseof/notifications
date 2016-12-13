@@ -16,6 +16,7 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import static com.example.android.customnotifications.DownloadService.ARGUMENT_MINUTES;
+import static com.example.android.customnotifications.DownloadService.ARGUMENT_UPDATE_ONLY;
 
 public class ShowNotificationService extends Service {
 
@@ -49,8 +50,10 @@ public class ShowNotificationService extends Service {
         Log.d(LOGTAG, "ShowNotificationService.onStartCommand --> id: " + startId + ", intent: " + intent);
 
         String relais_state = intent.getStringExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE);
-        int seconds_until_switchoff_counter = intent.getIntExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, 0);
+        int seconds_until_switchoff_counter = intent.getIntExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, -1);
+        if(relais_state!=null && seconds_until_switchoff_counter>-1) {
 
+        }
         createNotification(relais_state, seconds_until_switchoff_counter);
         vibrate(this);
         return START_NOT_STICKY;
@@ -83,15 +86,6 @@ public class ShowNotificationService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         // END_INCLUDE(notificationCompat)
 
-        // BEGIN_INCLUDE(intent)
-        //Create Intent to launch this Activity again if the notification is clicked.
-//        Intent i = new Intent(this, MainActivity.class);
-//        i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//        PendingIntent intent = PendingIntent.getActivity(this, 0, i,
-//                PendingIntent.FLAG_UPDATE_CURRENT);
-//        builder.setContentIntent(intent);
-        // END_INCLUDE(intent)
-
         // BEGIN_INCLUDE(ticker)
         // Sets the ticker text
         builder.setTicker(getResources().getString(R.string.custom_notification));
@@ -115,15 +109,6 @@ public class ShowNotificationService extends Service {
         // BEGIN_INCLUDE(content)
         // 1) small notification
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
-//        final String time = DateFormat.getTimeInstance().format(new Date()).toString();
-//        final String text = getResources().getString(R.string.collapsed, time);
-//        contentView.setTextViewText(R.id.textView, text);
-//        builder.setContent(contentView);
-        // 2) big notification
-//        RemoteViews bigContentView = new RemoteViews(getPackageName(), R.layout.notification_expanded);
-//        builder.setCustomBigContentView(bigContentView);
-        // BEGIN_INCLUDE(content)
-
         builder.setContent(contentView);
         contentView.setTextViewText(R.id.textView_ip, Configuration.target);
         contentView.setTextViewText(R.id.textView_relaisState, "relais: " + relais_state + ", remaining: " + seconds_until_switchoff_counter);
@@ -138,6 +123,7 @@ public class ShowNotificationService extends Service {
         addButtonListener(contentView, R.id.button_set90min);
         addButtonListener(contentView, R.id.button_on);
         addButtonListener(contentView, R.id.button_off);
+        addButtonListener(contentView, R.id.button_refresh);
         addConfigButtonListener(contentView, R.id.button_configure);
         // END_INCLUDE(on-notification button stuff)
 
@@ -206,6 +192,9 @@ public class ShowNotificationService extends Service {
                     case R.id.button_configure:
                         showConfig(context);
                         break;
+                    case R.id.button_refresh:
+                        refresh(context);
+                        break;
                     default:
                         Log.d(LOGTAG, "Sender not registerd to set time.");
                         break;
@@ -213,6 +202,13 @@ public class ShowNotificationService extends Service {
             } catch (Exception e) {
                 Log.e(LOGTAG, "Illegal property '"+ INTENT_SOURCE_RESOURCE_ID +"': " + componentId);
             }
+        }
+
+        private void refresh(Context context) {
+            Intent intent = new Intent(context, DownloadService.class);
+            intent.putExtra(DownloadService.ARGUMENT_UPDATE_ONLY, true);
+            Log.d(LOGTAG, "refresh() -- starting DownloadService...");
+            context.startService(intent);
         }
 
         private void showConfig(Context context) {
@@ -223,7 +219,7 @@ public class ShowNotificationService extends Service {
 
         private void setTimeout(Context context, int minutes) {
             Intent intent = new Intent(context, DownloadService.class);
-            intent.putExtra(ARGUMENT_MINUTES, minutes);
+            intent.putExtra(DownloadService.ARGUMENT_MINUTES, minutes);
             Log.d(LOGTAG, "startDownload() -- starting DownloadService...");
             context.startService(intent);
         }

@@ -18,10 +18,9 @@ import java.net.URLConnection;
 
 public class DownloadService extends IntentService {
 
+    public static final String ARGUMENT_UPDATE_ONLY = "ARGUMENT_UPDATE_ONLY";
     public static final String ARGUMENT_MINUTES = "ARGUMENT_MINUTES";
     public static final String LOGTAG = "\"DownloadService\"";
-
-    private int result = Activity.RESULT_CANCELED;
 
     public DownloadService() {
         super("DownloadService");
@@ -30,13 +29,14 @@ public class DownloadService extends IntentService {
     // will be called asynchronously by Android
     @Override
     protected void onHandleIntent(Intent intent) {
+        boolean updateOnly = intent.getBooleanExtra(ARGUMENT_UPDATE_ONLY, false);
         int minutes = intent.getIntExtra(ARGUMENT_MINUTES, -1);
-        Log.d(LOGTAG, "onHandleIntent() -- minutes: " + minutes);
-
-        try {
-            setStatus(minutes);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!updateOnly && minutes > -1) {
+            try {
+                setStatus(minutes);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         updateNotification(getStatus(), 1611);
 
