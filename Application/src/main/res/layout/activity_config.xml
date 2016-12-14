@@ -16,16 +16,6 @@
         <!--android:layout_height="wrap_content"-->
         <!--android:id="@+id/textView_targetURL" />-->
 
-    <Button
-        android:text="abort"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="abort"
-        android:id="@+id/button_abort"
-        android:layout_alignBaseline="@+id/button_save"
-        android:layout_alignBottom="@+id/button_save"
-        android:layout_alignParentEnd="true" />
-
     <EditText
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -42,7 +32,28 @@
         android:layout_height="wrap_content"
         android:onClick="save"
         android:id="@+id/button_save"
-        android:layout_marginTop="34dp"
+        android:layout_marginTop="35dp"
         android:layout_below="@+id/editText_targetURL"
         android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="abort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="abort"
+        android:id="@+id/button_abort"
+        android:layout_alignBaseline="@+id/button_save"
+        android:layout_alignBottom="@+id/button_save"
+        android:layout_toEndOf="@+id/button_save" />
+
+    <Button
+        android:text="exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="exit"
+        android:id="@+id/button_exit"
+        android:layout_alignBaseline="@+id/button_abort"
+        android:layout_alignBottom="@+id/button_abort"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>
