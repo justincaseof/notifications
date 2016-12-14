@@ -35,7 +35,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.sample_main);
+
+        //setContentView(R.layout.sample_main);
 
         createNotification();
         this.finish();
@@ -54,8 +55,8 @@ public class MainActivity extends Activity {
 
     private void createNotification() {
         Intent intent = new Intent(this, ShowNotificationService.class);
-        intent.putExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE, "0");
-        intent.putExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, 0);
+        intent.putExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE, -1);
+        intent.putExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, -1);
         Log.d(LOGTAG, "starting ShowNotificationService...");
         startService(intent);
     }

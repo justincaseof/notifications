@@ -14,6 +14,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DownloadService extends IntentService {
 
@@ -48,11 +50,13 @@ public class DownloadService extends IntentService {
         if(switchOff) {
             setStatus(RelaisState.OFF, 0);
         }
-        updateNotification(getStatus(), 1611);
+
+        Status status = getStatus();
+        updateNotification(status.relais_state, status.seconds_until_switchoff_counter);
 
     }
 
-    private void updateNotification(String relais_state, int seconds_until_switchoff_counter) {
+    private void updateNotification(int relais_state, int seconds_until_switchoff_counter) {
         Log.d(LOGTAG, "updateNotification: " + relais_state + ", " + seconds_until_switchoff_counter);
         Intent intent = new Intent(this, ShowNotificationService.class);
         intent.putExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE, relais_state);
@@ -61,25 +65,61 @@ public class DownloadService extends IntentService {
         startService(intent);
     }
 
-    public String getStatus() {
+    private Status getStatus() {
+        long start = System.currentTimeMillis();
         try {
-            long start = System.currentTimeMillis();
-            URLConnection urlConnection = new URL(Configuration.TARGET_URL).openConnection();
-            urlConnection.setConnectTimeout(2000);
-            urlConnection.setReadTimeout(2000);
-
-            InputStream is = urlConnection.getInputStream();
-            String response = readStream(is);
-            Log.d(LOGTAG, "#############################");
-            Log.d(LOGTAG, "# (took: " + (System.currentTimeMillis()-start) + "ms)");
-            Log.d(LOGTAG, "# response: " + response);
-            return response;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            // TODO: disconnect
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL(Configuration.TARGET_URL).openConnection();
+            urlConnection.setConnectTimeout(Configuration.REQUEST_TIMEOUT_MILLIS);
+            urlConnection.setReadTimeout(Configuration.REQUEST_TIMEOUT_MILLIS);
+            try {
+                InputStream is = urlConnection.getInputStream();
+                String response = readStream(is);
+                Log.d(LOGTAG, "#############################");
+                Log.d(LOGTAG, "# (took: " + (System.currentTimeMillis() - start) + "ms)");
+                Log.d(LOGTAG, "# response: " + response);
+                return new Status(response);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                urlConnection.disconnect();
+            }
+        } catch (Exception e) {
+            Log.e(LOGTAG, "Error getting status: " + e.getMessage());
         }
 
+        return null;
+    }
+
+    private Status setStatus(RelaisState relais_state, int remainingMinutes) {
+        try {
+            long start = System.currentTimeMillis();
+            URL url = new URL(Configuration.TARGET_URL);
+            HttpURLConnection urlConnection = null;
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setConnectTimeout(Configuration.REQUEST_TIMEOUT_MILLIS);
+            urlConnection.setReadTimeout(Configuration.REQUEST_TIMEOUT_MILLIS);
+            try {
+                urlConnection.setDoOutput(true);
+                urlConnection.setChunkedStreamingMode(0);
+
+                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+                writeStatusContent(relais_state.ordinal(), remainingMinutes * 60, out);
+
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                String response = readStream(in);
+                Log.d(LOGTAG, "#############################");
+                Log.d(LOGTAG, "# (took: " + (System.currentTimeMillis() - start) + "ms)");
+                Log.d(LOGTAG, "# response: " + response);
+
+                return new Status(response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                urlConnection.disconnect();
+            }
+        } catch (Exception e) {
+            Log.e(LOGTAG, "Error setting status: " + e.getMessage());
+        }
         return null;
     }
 
@@ -94,40 +134,32 @@ public class DownloadService extends IntentService {
         return response;
     }
 
-    private void setStatus(RelaisState relais_state, int remainingMinutes) {
-        try {
-            long start = System.currentTimeMillis();
-            URL url = new URL(Configuration.TARGET_URL);
-            HttpURLConnection urlConnection = null;
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setConnectTimeout(2000);
-            urlConnection.setReadTimeout(2000);
-            try {
-                urlConnection.setDoOutput(true);
-                urlConnection.setChunkedStreamingMode(0);
-
-                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                writeStatusContent(relais_state.ordinal(), remainingMinutes * 60, out);
-
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                String response = readStream(in);
-                Log.d(LOGTAG, "#############################");
-                Log.d(LOGTAG, "# (took: " + (System.currentTimeMillis() - start) + "ms)");
-                Log.d(LOGTAG, "# response: " + response);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                urlConnection.disconnect();
-            }
-        } catch (Exception e) {
-            Log.e(LOGTAG, "Error setting status: " + e.getMessage());
-        }
-    }
-
     private void writeStatusContent(int relais_state, int seconds_until_switchoff_counter, OutputStream out) throws IOException {
         // {"relais_state":0,"seconds_until_switchoff_counter":123}
         out.write(("{\"relais_state\":" + relais_state + ",\"seconds_until_switchoff_counter\":" + seconds_until_switchoff_counter + "}").getBytes());
         out.flush();
+    }
+
+    public static class Status {
+        int relais_state;
+        int seconds_until_switchoff_counter;
+        public Status(String json) {
+            Pattern pattern_relais_state = Pattern.compile(".*\"relais_state\":(\\d+)[,}].*");
+            Pattern pattern_counter = Pattern.compile(".*\"seconds_until_switchoff_counter\":(\\d+)[,}].*");
+
+            Matcher matcher_relais_state = pattern_relais_state.matcher(json);
+            Matcher matcher_counter = pattern_counter.matcher(json);
+
+            boolean match_relais_state = matcher_relais_state.matches();
+            boolean match_counter = matcher_counter.matches();
+
+            if (match_relais_state && match_counter) {
+                relais_state = Integer.valueOf(matcher_relais_state.group(1));
+                seconds_until_switchoff_counter = Integer.valueOf(matcher_counter.group(1));
+            } else {
+                throw new IllegalArgumentException("Invalid input");
+            }
+        }
     }
 
     private enum RelaisState {

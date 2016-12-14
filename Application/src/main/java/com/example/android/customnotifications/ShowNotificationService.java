@@ -46,11 +46,9 @@ public class ShowNotificationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOGTAG, "ShowNotificationService.onStartCommand --> id: " + startId + ", intent: " + intent);
 
-        String relais_state = intent.getStringExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE);
+        int relais_state = intent.getIntExtra(ShowNotificationService.ARGUMENT_RELAIS_STATE, -1);
         int seconds_until_switchoff_counter = intent.getIntExtra(ShowNotificationService.ARGUMENT_SECONDS_UNTIL_SWITCHOFF_COUNTER, -1);
-        if(relais_state!=null && seconds_until_switchoff_counter>-1) {
 
-        }
         createNotification(relais_state, seconds_until_switchoff_counter);
         vibrate(this);
         return START_NOT_STICKY;
@@ -76,7 +74,7 @@ public class ShowNotificationService extends Service {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void createNotification(String relais_state, int seconds_until_switchoff_counter) {
+    private void createNotification(int relais_state, int seconds_until_switchoff_counter) {
         Log.d(LOGTAG, "createNotification() -- relais_state: '" + relais_state + "', seconds_until_switchoff_counter: '" + seconds_until_switchoff_counter + "'");
 
         // BEGIN_INCLUDE(notificationCompat)
@@ -95,14 +93,6 @@ public class ShowNotificationService extends Service {
         // Cancel the notification when clicked
         builder.setAutoCancel(false);
         builder.setOngoing(true);
-
-        // BEGIN_INCLUDE(actions)
-//        Intent notifIntent = new Intent(MainActivity.this, Main2Activity.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
-//        builder.addAction(
-//            new NotificationCompat.Action(
-//                    R.drawable.ic_stat_plus, "+ 30", pendingIntent));
-        // END_INCLUDE(actions)
 
         // BEGIN_INCLUDE(content)
         // 1) small notification
@@ -124,10 +114,6 @@ public class ShowNotificationService extends Service {
         addButtonListener(contentView, R.id.button_refresh);
         addConfigButtonListener(contentView, R.id.button_configure);
         // END_INCLUDE(on-notification button stuff)
-
-        // BUG: notification won't show anything on it without the below line in some android versions
-        //notification.contentView = contentView;
-        // END_INCLUDE(buildNotification)
 
         // START_INCLUDE(notify)
         // Use the NotificationManager to show the notification
