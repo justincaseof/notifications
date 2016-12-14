@@ -52,8 +52,11 @@ public class DownloadService extends IntentService {
         }
 
         Status status = getStatus();
-        updateNotification(status.relais_state, status.seconds_until_switchoff_counter);
-
+        if(status!=null) {
+            updateNotification(status.relais_state, status.seconds_until_switchoff_counter);
+        } else {
+            updateNotification(-1, -1);
+        }
     }
 
     private void updateNotification(int relais_state, int seconds_until_switchoff_counter) {
