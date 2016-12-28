@@ -1,5 +1,6 @@
 package com.example.android.customnotifications;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,6 +13,7 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ImageButton;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -153,6 +155,7 @@ public class ShowNotificationService extends Service {
                 switch (id) {
                     case R.id.button_set10min:
                         Log.d(LOGTAG, "10min");
+                        loading(context);
                         setTimeout(context, 10);
                         break;
                     case R.id.button_set30min:
@@ -222,6 +225,25 @@ public class ShowNotificationService extends Service {
     private static void vibrate(Context context) {
         Vibrator vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(100);
+    }
+
+    private static void loading(Context context) {
+//        android:id="@+id/button_refresh"
+//        android:layout_width="wrap_content"
+//        android:layout_height="wrap_content"
+//        android:src="@drawable/ic_stat_custom"
+        try {
+            ImageButton imageButton = (ImageButton) ((Activity) context).findViewById(R.id.button_refresh);
+            if(imageButton!=null) {
+                Log.d(LOGTAG, "  -- ImageButton found!");
+                imageButton.setImageResource(R.drawable.ic_stat_planecrash);
+                imageButton.setBackgroundResource(R.drawable.ic_stat_planecrash);
+            } else {
+                Log.d(LOGTAG, "  -- no ImageButton :-(");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

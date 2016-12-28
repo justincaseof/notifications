@@ -23,7 +23,7 @@ public class DownloadService extends IntentService {
     public static final String ARGUMENT_MINUTES = "ARGUMENT_MINUTES";
     public static final String ARGUMENT_SWITCH_ON = "ARGUMENT_SWITCH_ON";
     public static final String ARGUMENT_SWITCH_OFF = "ARGUMENT_SWITCH_OFF";
-    public static final String LOGTAG = "\"DownloadService\"";
+    public static final String LOGTAG = "DownloadService";
 
     public DownloadService() {
         super("DownloadService");

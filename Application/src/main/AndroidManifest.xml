@@ -59,6 +59,13 @@
             />
         </service>
 
+        <service
+            android:name=".MDNSScanService"
+            android:enabled="true"
+            android:exported="true">
+            />
+        </service>
+
     </application>
 
 </manifest>
