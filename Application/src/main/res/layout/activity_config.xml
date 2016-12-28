@@ -56,4 +56,14 @@
         android:layout_alignBottom="@+id/button_abort"
         android:layout_alignParentEnd="true" />
 
+    <Button
+        android:text="deviceScan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_save"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="34dp"
+        android:id="@+id/button_deviceScan"
+        android:onClick="deviceScan"/>
+
 </RelativeLayout>

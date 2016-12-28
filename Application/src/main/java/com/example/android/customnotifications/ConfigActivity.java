@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -50,6 +52,13 @@ public class ConfigActivity extends Activity {
         finish();
     }
 
+    public void deviceScan(View view) {
+        Intent intent = new Intent(view.getContext(), MDNSScanService.class);
+        intent.putExtra(MDNSScanService.ARGUMENT_BOOL_1, true);
+        Log.d(LOGATG, "deviceScan() -- starting device scan...");
+        view.getContext().startService(intent);
+    }
+
     private class confirmationListenerFor implements DialogInterface.OnClickListener {
         private String target;
         private ConfigActivity view;
@@ -58,9 +67,10 @@ public class ConfigActivity extends Activity {
             this.target = target;
             this.view = view;
         }
+
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            switch (which){
+            switch (which) {
                 case DialogInterface.BUTTON_POSITIVE:
                     Configuration.TARGET_URL = target;
                     view.finish();
