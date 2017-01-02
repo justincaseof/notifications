@@ -9,7 +9,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ConfigActivity extends Activity {
 
@@ -20,8 +23,20 @@ public class ConfigActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
 
+        addDeviceScanListClickListener(savedInstanceState);
+
         TextView url = (TextView)findViewById(R.id.editText_targetURL);
         url.setText(Configuration.TARGET_URL);
+    }
+
+    private void addDeviceScanListClickListener(Bundle savedInstanceState) {
+        ListView listView = (ListView) findViewById(R.id.listView_deviceScan);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "Click ListItem Number " + position, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public void abort(View view) {
